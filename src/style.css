@@ -1,0 +1,33 @@
+#gameContainer {
+  text-align: center;
+  margin-top: 50px;
+  position: relative;
+}
+
+canvas {
+  background-color: #87CEEB;
+  display: block;
+  margin: 20px auto;
+}
+
+button {
+  font-size: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+#pauseScreen {
+  visibility: hidden;  /* or 'display: none;' when you want to hide it initially */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the pause screen */
+  background-color: rgba(255, 255, 255, 0.8); /* Optional: Add a background color with transparency */
+  padding: 20px; /* Optional: Add some padding */
+  border-radius: 10px; /* Optional: Round the corners */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Optional: Add some shadow for better visibility */
+  z-index: 100; /* Ensure it's above other content */
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
