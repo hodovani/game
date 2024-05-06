@@ -1,10 +1,22 @@
+import { getRandomInt, createImage } from "./utils";
+import imageSrc1 from "./images/plastic-1.png";
+import imageSrc2 from "./images/plastic-2.png";
+import imageSrc3 from "./images/plastic-3.png";
+
+const platicsImages = [
+  createImage(imageSrc1),
+  createImage(imageSrc2),
+  createImage(imageSrc3),
+];
+
 export function createPlastic({ canvas, topBoundary }) {
   return {
     x: canvas.width,
     y: Math.random() * (canvas.height - topBoundary - 20) + topBoundary,
     width: 40,
     height: 20,
-    speed: -1 - Math.random(), // Crabs move leftwards
+    speed: -1 - Math.random(),
+    imageKey: getRandomInt(1, 3),
   };
 }
 
@@ -43,6 +55,11 @@ export function catchPlastic({ plastics, score, net, canvas }) {
 }
 
 export function drawPlastic({ ctx, plastic }) {
-  ctx.fillStyle = "grey"; // Typically, plastic might be depicted in grey
-  ctx.fillRect(plastic.x, plastic.y, plastic.width, plastic.height);
+  ctx.drawImage(
+    platicsImages[plastic.imageKey - 1],
+    plastic.x,
+    plastic.y,
+    plastic.width,
+    plastic.height
+  );
 }

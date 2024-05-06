@@ -21,7 +21,7 @@ export function catchFish({ fishes, score, net, canvas }) {
         fish.y =
           Math.random() * (canvas.height - topBoundary - fish.height) +
           topBoundary;
-        score += 1;
+        score = score === 0 ? 0 : score - 1;
       }
       return fish;
     }),
