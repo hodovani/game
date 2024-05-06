@@ -1,7 +1,14 @@
 import "./style.css";
 import { drawBackground } from "./drawBackground";
 import { drawNet } from "./drawNet";
-import { drawFish } from "./drawFish";
+import { drawFish, catchFish, updateFishesPosition } from "./fish";
+import {
+  createPlastic,
+  updatePlasticsPosition,
+  catchPlastic,
+  drawPlastic,
+} from "./plastic";
+import { drawScoreProgressBar } from "./scoreProgressBar";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -13,6 +20,7 @@ window.gameActive = false;
 window.score = 0;
 window.topBoundary = 325;
 window.fishes = [];
+window.plastics = [];
 window.requestID = null; // Variable to store the ID of the requestAnimationFrame
 window.topScore = 3;
 
@@ -23,54 +31,6 @@ let net = {
   height: 50,
 };
 
-// Draws the score progress bar on the canvas
-function drawScoreProgressBar() {
-  const progressBarWidth = 200;
-  const progressBarHeight = 20;
-  const progress = (score / topScore) * progressBarWidth;
-
-  ctx.fillStyle = "gray";
-  ctx.fillRect(
-    canvas.width / 2 - progressBarWidth / 2,
-    30,
-    progressBarWidth,
-    progressBarHeight
-  );
-  ctx.fillStyle = "blue";
-  ctx.fillRect(
-    canvas.width / 2 - progressBarWidth / 2,
-    30,
-    progress,
-    progressBarHeight
-  );
-  ctx.strokeStyle = "black";
-  ctx.strokeRect(
-    canvas.width / 2 - progressBarWidth / 2,
-    30,
-    progressBarWidth,
-    progressBarHeight
-  );
-}
-
-// Handles fish catching logic
-function catchFish() {
-  if (!gameActive) return;
-  fishes.forEach((fish) => {
-    if (
-      fish.x < net.x + net.width &&
-      fish.x + fish.width > net.x &&
-      fish.y < net.y + net.height &&
-      fish.y + fish.height > net.y
-    ) {
-      fish.x = -fish.width;
-      fish.y =
-        Math.random() * (canvas.height - topBoundary - fish.height) +
-        topBoundary;
-      score += 1;
-    }
-  });
-}
-
 // Pauses the game
 function pauseGame() {
   gameActive = false;
@@ -78,34 +38,30 @@ function pauseGame() {
   pauseScreen.style.visibility = "visible";
 }
 
-// Updates the positions of the fish
-function updateFishesPosition() {
-  if (!gameActive) return;
-  fishes.forEach((fish) => {
-    fish.x += fish.speed;
-    if (fish.x > canvas.width) {
-      fish.x = -fish.width;
-      fish.y =
-        Math.random() * (canvas.height - topBoundary - fish.height) +
-        topBoundary;
-    }
-  });
-}
-
 // Main game loop
 function gameLoop() {
   if (!gameActive) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  updateFishesPosition();
-  catchFish();
+  fishes = updateFishesPosition({ fishes, canvas, topBoundary });
+  plastics = updatePlasticsPosition({ plastics, canvas, topBoundary });
+  const [newFishes, newScore1] = catchFish({ fishes, score, net, canvas });
+  fishes = newFishes;
+  score = newScore1;
+  const [newPlastics, newScore] = catchPlastic({
+    plastics,
+    score,
+    net,
+    canvas,
+  });
+  plastics = newPlastics;
+  score = newScore;
 
   drawBackground({ ctx, canvas });
   drawNet({ ctx, net });
   fishes.forEach((fish) => drawFish({ ctx, canvas, fish }));
-  drawScoreProgressBar();
-
-  console.log(score);
+  plastics.forEach((plastic) => drawPlastic({ ctx, canvas, plastic }));
+  drawScoreProgressBar({ ctx, score, topScore, canvas });
 
   if (score >= topScore) {
     pauseGame();
@@ -143,6 +99,11 @@ startButton.addEventListener("click", function () {
         speed: 2 + Math.random() * 2,
       });
     }
+
+    for (let i = 0; i < 5; i++) {
+      plastics.push(createPlastic({ canvas, topBoundary }));
+    }
+
     gameLoop();
   }
 });
